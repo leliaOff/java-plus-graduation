@@ -1,18 +1,24 @@
 spring:
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:6432/ewm-stats
-    username: postgres
-    password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: none
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    generate-ddl: false
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: false
-  sql:
-    init:
-      mode: always
+  application:
+    name: stats-server
+  config:
+    import: optional:configserver:http://config-server:9091
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        useRandomPolicy: true
+        max-interval: 6000
+      discovery:
+        enabled: true
+        service-id: config-server
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
+
+server:
+  port: 9090
