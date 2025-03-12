@@ -4,7 +4,6 @@ import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.mappers.EventMapper;
 import ru.practicum.models.Compilation;
 import ru.practicum.models.Event;
 

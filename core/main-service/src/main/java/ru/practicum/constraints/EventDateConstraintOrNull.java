@@ -2,7 +2,6 @@ package ru.practicum.constraints;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import ru.practicum.constraints.EventDateConstraintOrNullValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

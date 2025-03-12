@@ -14,7 +14,6 @@ import ru.practicum.mappers.CategoryMapper;
 import ru.practicum.models.Category;
 import ru.practicum.repositories.CategoryRepository;
 import ru.practicum.repositories.EventRepository;
-import ru.practicum.services.category.CategoryService;
 
 import java.util.ArrayList;
 import java.util.List;

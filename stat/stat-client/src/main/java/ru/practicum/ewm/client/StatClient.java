@@ -1,7 +1,5 @@
 package ru.practicum.ewm.client;
 
-import ru.practicum.dto.HitDto;
-import ru.practicum.dto.StatDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -9,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import ru.practicum.dto.HitDto;
+import ru.practicum.dto.StatDto;
 
 import java.util.List;
 

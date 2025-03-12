@@ -7,10 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import ru.practicum.exceptions.BadRequestException;
-import ru.practicum.exceptions.ConflictException;
-import ru.practicum.exceptions.Error;
-import ru.practicum.exceptions.InvalidDataException;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

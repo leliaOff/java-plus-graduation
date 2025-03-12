@@ -2,7 +2,6 @@ package ru.practicum.mappers;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.dto.eventComment.*;
-import ru.practicum.mappers.UserMapper;
 import ru.practicum.models.Event;
 import ru.practicum.models.EventComment;
 import ru.practicum.models.User;
