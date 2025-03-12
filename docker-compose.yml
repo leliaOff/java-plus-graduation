@@ -85,7 +85,7 @@ services:
       retries: 15
 
   ewm-service:
-    build: ewm
+    build: core/main-service
     container_name: ewm-service
     ports:
       - "8080:8080"
