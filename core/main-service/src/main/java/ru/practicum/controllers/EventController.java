@@ -38,14 +38,22 @@ public class EventController {
                 from,
                 size
         );
-        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
+        try {
+            statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
+        } catch (Exception exception) {
+
+        }
         return events;
     }
 
     @GetMapping("/{id}")
     public EventFullDto find(@PathVariable Long id, HttpServletRequest request) {
         EventFullDto event = eventService.find(id);
-        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
+        try {
+            statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
+        } catch (Exception exception) {
+
+        }
         return event;
     }
 }
