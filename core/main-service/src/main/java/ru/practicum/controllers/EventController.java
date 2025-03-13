@@ -2,6 +2,7 @@ package ru.practicum.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.EventFilterDto;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/events")
+@Slf4j
 public class EventController {
     private final EventService eventService;
     private final StatEventService statEventService;
@@ -41,7 +43,7 @@ public class EventController {
         try {
             statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         } catch (Exception exception) {
-
+            log.error("stat fail: {}", exception.getMessage());
         }
         return events;
     }
@@ -52,7 +54,7 @@ public class EventController {
         try {
             statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         } catch (Exception exception) {
-
+            log.error("stat fail: {}", exception.getMessage());
         }
         return event;
     }
