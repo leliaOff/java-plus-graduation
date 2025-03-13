@@ -40,22 +40,14 @@ public class EventController {
                 from,
                 size
         );
-        try {
-            statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
-        } catch (Exception exception) {
-            log.error("stat fail: {}", exception.getMessage());
-        }
+        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         return events;
     }
 
     @GetMapping("/{id}")
     public EventFullDto find(@PathVariable Long id, HttpServletRequest request) {
         EventFullDto event = eventService.find(id);
-        try {
-            statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
-        } catch (Exception exception) {
-            log.error("stat fail: {}", exception.getMessage());
-        }
+        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         return event;
     }
 }
