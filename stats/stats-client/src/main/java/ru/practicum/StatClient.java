@@ -1,4 +1,4 @@
-package ru.practicum.ewm.client;
+package ru.practicum;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,7 @@ import ru.practicum.dto.StatDto;
 
 import java.util.List;
 
-@FeignClient(name = "stats-server")
+@FeignClient(name = "stats-client")
 public interface StatClient {
 
     @PostMapping("/hit")

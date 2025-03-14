@@ -3,9 +3,9 @@ package ru.practicum.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.StatClient;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatDto;
-import ru.practicum.ewm.client.StatClient;
 import ru.practicum.models.Event;
 
 import java.time.LocalDateTime;
