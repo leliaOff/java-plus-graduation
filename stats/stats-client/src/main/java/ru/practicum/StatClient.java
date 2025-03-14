@@ -10,7 +10,7 @@ import ru.practicum.dto.StatDto;
 
 import java.util.List;
 
-@FeignClient(name = "stats-client")
+@FeignClient(name = "stats-server")
 public interface StatClient {
 
     @PostMapping("/hit")
