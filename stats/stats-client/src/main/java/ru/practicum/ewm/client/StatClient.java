@@ -14,7 +14,7 @@ import java.util.List;
 public interface StatClient {
 
     @PostMapping("/hit")
-    void saveHit(@RequestBody HitDto hitDto);
+    void hit(@RequestBody HitDto hitDto);
 
     @GetMapping("stats")
     List<StatDto> getStats(@RequestParam(defaultValue = "") String start,
