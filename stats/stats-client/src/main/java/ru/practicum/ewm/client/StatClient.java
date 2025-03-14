@@ -1,6 +1,7 @@
 package ru.practicum.ewm.client;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import ru.practicum.dto.StatDto;
 import java.util.List;
 
 @Component
+@Slf4j
 public class StatClient {
     private final RestClient restClient;
 
@@ -21,11 +23,15 @@ public class StatClient {
     }
 
     public void hit(@Valid HitDto hitDto) {
-        restClient.post().uri("/hit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(hitDto)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            restClient.post().uri("/hit")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(hitDto)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception exception) {
+            log.error("При обращении к сервису статистики возникла ошибка: " + exception.getMessage());
+        }
     }
 
     public List<StatDto> getStats(String start,
