@@ -1,6 +1,8 @@
 spring:
+  main:
+    web-application-type: reactive
   application:
-    name: main-service
+    name: gateway-server
   config:
     import: "configserver:"
   cloud:
@@ -18,7 +20,3 @@ eureka:
     fetch-registry: true
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
-server:
-  port: 0
-stat-server:
-  url: http://localhost:9090
