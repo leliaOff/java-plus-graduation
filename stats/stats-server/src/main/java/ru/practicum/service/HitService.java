@@ -3,7 +3,7 @@ package ru.practicum.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.HitDto;
+import ru.practicum.HitDto;
 import ru.practicum.model.Hit;
 import ru.practicum.model.HitMapper;
 import ru.practicum.repository.HitRepository;
