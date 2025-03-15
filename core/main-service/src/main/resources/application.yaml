@@ -1,6 +1,6 @@
 spring:
   application:
-    name: stats-server
+    name: main-service
   config:
     import: optional:configserver:http://config-server:9091
   cloud:
@@ -13,4 +13,6 @@ spring:
         enabled: true
         service-id: config-server
 server:
-  port: 9090
+  port: 8080
+stat-server:
+  url: http://localhost:9090

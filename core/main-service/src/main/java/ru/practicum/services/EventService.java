@@ -53,9 +53,10 @@ public class EventService {
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         UserDto userDto = userService.getUser(userId);
-        Event event = eventRepository.save(EventMapper.toModel(newEventDto, UserMapper.toModel(userDto)));
-        log.info("Added event: {}", event);
-        return EventMapper.toDto(event, 0L);
+        Event event = EventMapper.toModel(newEventDto, UserMapper.toModel(userDto));
+        Event savedEvent = eventRepository.save(event);
+        log.info("Added event: {}", savedEvent);
+        return EventMapper.toDto(savedEvent, 0L);
     }
 
     public List<EventShortDto> getPrivateEvents(Long userId, PageRequest request) {

@@ -6,11 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
-import ru.practicum.dto.user.UserAdminParam;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.UserMapper;
 import ru.practicum.models.User;
 import ru.practicum.repositories.UserRepository;
+import ru.practicum.params.user.UserAdminParam;
 
 import java.util.List;
 

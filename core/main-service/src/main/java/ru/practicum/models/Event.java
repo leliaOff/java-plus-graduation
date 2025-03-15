@@ -49,7 +49,7 @@ public class Event {
     @Column(name = "participant_limit")
     private Integer participantLimit;
 
-    @Column(name = "published_on", nullable = false)
+    @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")

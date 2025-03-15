@@ -23,7 +23,7 @@ public class StatEventService {
     private final DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final String appName;
 
-    public StatEventService(StatClient statClient, @Value("${app.name}") String appName) {
+    public StatEventService(StatClient statClient, @Value("${spring.application.name}") String appName) {
         this.statClient = statClient;
         this.appName = appName;
     }

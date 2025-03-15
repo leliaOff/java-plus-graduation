@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.user.NewUserRequest;
-import ru.practicum.dto.user.UserAdminParam;
+import ru.practicum.params.user.UserAdminParam;
 import ru.practicum.dto.user.UserDto;
 import ru.practicum.services.UserService;
 
