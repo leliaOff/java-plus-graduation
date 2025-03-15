@@ -20,5 +20,3 @@ eureka:
       defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
 server:
   port: 0
-stat-server:
-  url: http://localhost:9090
