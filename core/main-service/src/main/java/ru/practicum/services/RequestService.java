@@ -1,7 +1,9 @@
 package ru.practicum.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.eventRequest.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.eventRequest.EventRequestStatusUpdateResult;
 import ru.practicum.dto.eventRequest.ParticipationRequestDto;
@@ -13,35 +15,28 @@ import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventRequestMapper;
 import ru.practicum.models.Event;
 import ru.practicum.models.EventRequest;
-import ru.practicum.models.User;
 import ru.practicum.repositories.EventRepository;
 import ru.practicum.repositories.RequestRepository;
-import ru.practicum.repositories.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 @Transactional(readOnly = true)
 public class RequestService {
 
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
-
-    public RequestService(RequestRepository requestRepository, EventRepository eventRepository, UserRepository userRepository) {
-        this.requestRepository = requestRepository;
-        this.eventRepository = eventRepository;
-        this.userRepository = userRepository;
-    }
+    private final UserEventService userEventService;
 
     @Transactional
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
-        User user = getUser(userId);
+        UserDto user = userEventService.getUser(userId);
         Event event = getEvent(eventId);
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId))
             throw new InvalidDataException("Request already exist");
-        if (event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiatorId().equals(userId)) {
             throw new InvalidDataException("Request can't be created by initiator");
         }
         if (event.getPublishedOn() == null) {
@@ -53,7 +48,7 @@ public class RequestService {
             throw new InvalidDataException("Participant limit exceeded");
         }
 
-        EventRequest eventRequest = new EventRequest(null, event, user, LocalDateTime.now(), EventRequestStatus.PENDING);
+        EventRequest eventRequest = new EventRequest(null, event, user.id(), LocalDateTime.now(), EventRequestStatus.PENDING);
         if (!event.getRequestModeration()) {
             eventRequest.setStatus(EventRequestStatus.CONFIRMED);
         }
@@ -66,13 +61,8 @@ public class RequestService {
     }
 
     public List<ParticipationRequestDto> getRequests(Long userId) {
-        getUser(userId);
+        UserDto user = userEventService.getUser(userId);
         return EventRequestMapper.toDto(requestRepository.findAllByRequesterId(userId));
-    }
-
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
     }
 
     private Event getEvent(Long eventId) {

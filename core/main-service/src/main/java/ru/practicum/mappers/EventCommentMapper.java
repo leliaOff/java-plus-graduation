@@ -1,20 +1,20 @@
 package ru.practicum.mappers;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.eventComment.*;
 import ru.practicum.models.Event;
 import ru.practicum.models.EventComment;
-import ru.practicum.models.User;
 
 import java.time.LocalDateTime;
 
 @UtilityClass
 public class EventCommentMapper {
-    public EventCommentDto toDto(EventComment model) {
+    public EventCommentDto toDto(EventComment model, UserDto user) {
         return new EventCommentDto(
                 model.getId(),
                 model.getText(),
-                UserMapper.toShortDto(model.getAuthor()),
+                UserDtoMapper.toShortDto(user),
                 model.getCreated()
         );
     }
@@ -24,16 +24,16 @@ public class EventCommentMapper {
                 model.getId(),
                 model.getText(),
                 model.getEvent().getId(),
-                model.getAuthor().getId(),
+                model.getId(),
                 model.getCreated(),
                 model.getStatus()
         );
     }
 
-    public EventComment toModel(CreateCommentRequest request, User author, Event event) {
+    public EventComment toModel(CreateCommentRequest request, Long authorId, Event event) {
         EventComment model = new EventComment();
         model.setEvent(event);
-        model.setAuthor(author);
+        model.setAuthorId(authorId);
         model.setText(request.getText());
         model.setCreated(LocalDateTime.now());
         return model;

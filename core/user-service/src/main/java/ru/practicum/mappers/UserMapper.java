@@ -1,9 +1,9 @@
 package ru.practicum.mappers;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.dto.user.NewUserRequest;
-import ru.practicum.dto.user.UserDto;
-import ru.practicum.dto.user.UserShortDto;
+import ru.practicum.dto.NewUserRequest;
+import ru.practicum.dto.UserDto;
+import ru.practicum.dto.UserShortDto;
 import ru.practicum.models.User;
 
 import java.util.List;
@@ -39,9 +39,9 @@ public class UserMapper {
 
     public User toModel(UserDto dto) {
         User user = new User();
-        user.setId(dto.getId());
-        user.setEmail(dto.getEmail());
-        user.setName(dto.getName());
+        user.setId(dto.id());
+        user.setEmail(dto.email());
+        user.setName(dto.name());
         return user;
     }
 }

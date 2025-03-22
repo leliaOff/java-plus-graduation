@@ -39,9 +39,8 @@ public class Event {
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id")
-    private User initiator;
+    private Long initiatorId;
 
     @Column
     private Boolean paid;

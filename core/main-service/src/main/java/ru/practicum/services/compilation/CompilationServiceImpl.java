@@ -15,18 +15,20 @@ import ru.practicum.models.Event;
 import ru.practicum.repositories.CompilationRepository;
 import ru.practicum.repositories.EventRepository;
 import ru.practicum.services.StatEventService;
+import ru.practicum.services.UserEventService;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final StatEventService statEventService;
+    private final UserEventService userEventService;
 
     public CompilationDto find(Long compilationId) {
         Optional<Compilation> optional = compilationRepository.findById(compilationId);
@@ -39,9 +41,6 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Collection<Event> events = eventRepository.findByIdIn(newCompilationDto.getEvents());
-        if (newCompilationDto.getEvents() != null && newCompilationDto.getEvents().size() != events.size()) {
-            throw new InvalidDataException("One or more events not found");
-        }
         Compilation compilation = CompilationMapper.toModel(newCompilationDto, events);
         compilation = compilationRepository.save(compilation);
         log.info("Compilation saved: {}", compilation);
@@ -81,6 +80,6 @@ public class CompilationServiceImpl implements CompilationService {
 
     private CompilationDto getCompilationWithEventViews(Compilation compilation) {
         Collection<Event> events = compilation.getEvents();
-        return CompilationMapper.toDto(compilation, statEventService.getViews(events));
+        return CompilationMapper.toDto(compilation, userEventService.getUsersByEvents(events), statEventService.getViews(events));
     }
 }

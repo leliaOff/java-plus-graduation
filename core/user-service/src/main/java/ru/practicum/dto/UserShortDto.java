@@ -1,4 +1,4 @@
-package ru.practicum.dto.user;
+package ru.practicum.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UserDto {
+public class UserShortDto {
     private Long id;
-    private String email;
     private String name;
 }

@@ -23,8 +23,7 @@ public class EventComment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User author;
+    private Long authorId;
 
     @Column(nullable = false)
     private String text;

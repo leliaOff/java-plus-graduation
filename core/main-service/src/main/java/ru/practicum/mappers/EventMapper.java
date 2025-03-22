@@ -1,6 +1,7 @@
 package ru.practicum.mappers;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.location.Location;
 import ru.practicum.enums.EventAdminStateAction;
@@ -9,13 +10,12 @@ import ru.practicum.enums.EventUserStateAction;
 import ru.practicum.exceptions.InvalidDataException;
 import ru.practicum.models.Category;
 import ru.practicum.models.Event;
-import ru.practicum.models.User;
 
 import java.time.LocalDateTime;
 
 @UtilityClass
 public class EventMapper {
-    public EventShortDto toShortDto(Event model, Long view) {
+    public EventShortDto toShortDto(Event model, UserDto user, Long view) {
         return new EventShortDto(
                 model.getId(),
                 model.getTitle(),
@@ -23,14 +23,14 @@ public class EventMapper {
                 CategoryMapper.toDto(model.getCategory()),
                 model.getConfirmedRequests(),
                 model.getEventDate(),
-                UserMapper.toShortDto(model.getInitiator()),
+                UserDtoMapper.toShortDto(user),
                 model.getPaid(),
                 view
         );
     }
 
 
-    public EventFullDto toDto(Event model, Long view) {
+    public EventFullDto toDto(Event model, UserDto user, Long view) {
         return new EventFullDto(
                 model.getId(),
                 model.getTitle(),
@@ -40,7 +40,7 @@ public class EventMapper {
                 model.getCreatedOn(),
                 model.getDescription(),
                 model.getEventDate(),
-                UserMapper.toShortDto(model.getInitiator()),
+                UserDtoMapper.toShortDto(user),
                 new Location(model.getLat(), model.getLon()),
                 model.getPaid(),
                 model.getParticipantLimit(),
@@ -52,7 +52,7 @@ public class EventMapper {
     }
 
 
-    public Event toModel(NewEventDto dto, User user) {
+    public Event toModel(NewEventDto dto, Long initiatorId) {
         Event model = new Event();
         model.setTitle(dto.getTitle());
         model.setAnnotation(dto.getAnnotation());
@@ -64,12 +64,12 @@ public class EventMapper {
         model.setRequestModeration(dto.getRequestModeration());
         model.setLat(dto.getLocation().getLat());
         model.setLon(dto.getLocation().getLon());
-        model.setInitiator(user);
+        model.setInitiatorId(initiatorId);
         model.setCreatedOn(LocalDateTime.now());
         return model;
     }
 
-    public EventFullDto toDtoWithoutViews(Event model) {
+    public EventFullDto toDtoWithoutViews(Event model, UserDto user) {
         return new EventFullDto(
                 model.getId(),
                 model.getTitle(),
@@ -79,7 +79,7 @@ public class EventMapper {
                 model.getCreatedOn(),
                 model.getDescription(),
                 model.getEventDate(),
-                UserMapper.toShortDto(model.getInitiator()),
+                UserDtoMapper.toShortDto(user),
                 new Location(model.getLat(), model.getLon()),
                 model.getPaid(),
                 model.getParticipantLimit(),

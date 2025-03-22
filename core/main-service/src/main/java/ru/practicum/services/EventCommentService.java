@@ -1,9 +1,11 @@
 package ru.practicum.services;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.eventComment.*;
 import ru.practicum.enums.EventCommentStatus;
 import ru.practicum.enums.EventState;
@@ -15,30 +17,21 @@ import ru.practicum.helpers.PaginateHelper;
 import ru.practicum.mappers.EventCommentMapper;
 import ru.practicum.models.Event;
 import ru.practicum.models.EventComment;
-import ru.practicum.models.User;
 import ru.practicum.repositories.EventCommentRepository;
 import ru.practicum.repositories.EventRepository;
-import ru.practicum.repositories.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
-@Transactional(readOnly = true)
 @Slf4j
+@Service
+@AllArgsConstructor
+@Transactional(readOnly = true)
 public class EventCommentService {
-    private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final EventCommentRepository eventCommentRepository;
-
-    public EventCommentService(UserRepository userRepository,
-                               EventRepository eventRepository,
-                               EventCommentRepository eventCommentRepository
-    ) {
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-        this.eventCommentRepository = eventCommentRepository;
-    }
+    private final UserEventService userEventService;
 
     public List<EventCommentPrivateDto> getComments(Long userId, Long eventId, Integer size, Integer from) {
         if (eventId != null) {
@@ -70,10 +63,14 @@ public class EventCommentService {
     }
 
     public List<EventCommentDto> getPublishedComments(Long eventId, Integer size, Integer from) {
+        List<EventComment> eventCommentList = eventCommentRepository.findAllByEventIdAndStatus(eventId, EventCommentStatus.PUBLISHED,
+                PaginateHelper.getPageRequest(from, size, Sort.by(Sort.Direction.ASC, "created"))
+        );
+        Map<Long, UserDto> users = userEventService.getUsersByComments(eventCommentList);
         return eventCommentRepository.findAllByEventIdAndStatus(eventId, EventCommentStatus.PUBLISHED,
                         PaginateHelper.getPageRequest(from, size, Sort.by(Sort.Direction.ASC, "created"))
                 ).stream()
-                .map(EventCommentMapper::toDto)
+                .map((EventComment model) -> EventCommentMapper.toDto(model, users.get(model.getAuthorId())))
                 .collect(Collectors.toList());
     }
 
@@ -84,12 +81,12 @@ public class EventCommentService {
 
     @Transactional
     public EventCommentPrivateDto create(Long userId, CreateCommentRequest request) {
-        User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        UserDto author = userEventService.getUser(userId);
         Event event = eventRepository.findById(request.getEventId()).orElseThrow(() -> new NotFoundException("Event not found"));
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new InvalidDataException("Event not published");
         }
-        EventComment comment = eventCommentRepository.save(EventCommentMapper.toModel(request, author, event));
+        EventComment comment = eventCommentRepository.save(EventCommentMapper.toModel(request, author.id(), event));
         return EventCommentMapper.toPrivateDto(comment);
     }
 
@@ -97,7 +94,7 @@ public class EventCommentService {
     @Transactional
     public EventCommentPrivateDto update(Long userId, Long commentId, UpdateCommentRequest request) {
         EventComment comment = find(commentId);
-        if (!comment.getAuthor().getId().equals(userId)) {
+        if (!comment.getAuthorId().equals(userId)) {
             throw new ForbiddenException("No access to comment");
         }
         if (!comment.getStatus().equals(EventCommentStatus.PENDING)) {
@@ -118,7 +115,7 @@ public class EventCommentService {
     @Transactional
     public void delete(Long userId, Long commentId) {
         EventComment comment = find(commentId);
-        if (!comment.getAuthor().getId().equals(userId)) {
+        if (!comment.getAuthorId().equals(userId)) {
             throw new ForbiddenException("No access to comment");
         }
         if (!comment.getStatus().equals(EventCommentStatus.PENDING)) {
