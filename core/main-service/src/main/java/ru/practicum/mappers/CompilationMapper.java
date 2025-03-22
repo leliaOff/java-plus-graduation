@@ -1,5 +1,7 @@
 package ru.practicum.mappers;
 
+import lombok.AllArgsConstructor;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
@@ -10,14 +12,16 @@ import ru.practicum.models.Event;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 public class CompilationMapper {
-    public static CompilationDto toDto(Compilation model, HashMap<Long, Long> views) {
+    public static CompilationDto toDto(Compilation model, Map<Long, UserDto> users, HashMap<Long, Long> views) {
         Collection<EventShortDto> events = new ArrayList<>();
         if (model.getEvents() != null) {
             events = model.getEvents().stream()
-                    .map(event -> EventMapper.toShortDto(event, views.get(event.getId())))
+                    .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), views.get(event.getId())))
                     .collect(Collectors.toList());
         }
         return new CompilationDto(

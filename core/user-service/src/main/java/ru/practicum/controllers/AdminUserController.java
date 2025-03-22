@@ -1,28 +1,25 @@
-package ru.practicum.controllers.admin;
+package ru.practicum.controllers;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.user.NewUserRequest;
-import ru.practicum.dto.user.UserDto;
-import ru.practicum.params.user.UserAdminParam;
+import ru.practicum.dto.NewUserRequest;
+import ru.practicum.dto.UserDto;
+import ru.practicum.params.UserAdminParam;
 import ru.practicum.services.UserService;
 
 import java.util.List;
 
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/admin/users")
-public class UserAdminController {
+public class AdminUserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserAdminController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,9 +28,9 @@ public class UserAdminController {
     }
 
     @GetMapping
-    List<UserDto> getUser(@RequestParam(required = false) List<Long> ids,
-                          @RequestParam(defaultValue = "10") Integer size,
-                          @RequestParam(defaultValue = "0") Integer from) {
+    List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
+                           @RequestParam(defaultValue = "10") Integer size,
+                           @RequestParam(defaultValue = "0") Integer from) {
         return userService.getUsers(new UserAdminParam(ids, size, from));
     }
 

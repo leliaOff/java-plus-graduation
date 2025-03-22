@@ -13,7 +13,7 @@ public class EventRequestMapper {
                 model.getId(),
                 model.getCreated(),
                 model.getEvent().getId(),
-                model.getRequester().getId(),
+                model.getRequesterId(),
                 model.getStatus()
         );
     }

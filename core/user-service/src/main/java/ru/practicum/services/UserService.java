@@ -4,12 +4,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import ru.practicum.dto.user.NewUserRequest;
-import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.NewUserRequest;
+import ru.practicum.dto.UserDto;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.UserMapper;
 import ru.practicum.models.User;
-import ru.practicum.params.user.UserAdminParam;
+import ru.practicum.params.UserAdminParam;
 import ru.practicum.repositories.UserRepository;
 
 import java.util.List;
@@ -33,6 +33,10 @@ public class UserService {
         return CollectionUtils.isEmpty(param.getIds()) ? UserMapper.toDto(
                 userRepository.findAll(PageRequest.of(param.getFrom(), param.getSize())).toList())
                 : UserMapper.toDto(userRepository.findAllById(param.getIds()));
+    }
+
+    public List<UserDto> getUsers(List<Long> ids) {
+        return UserMapper.toDto(userRepository.findAllById(ids));
     }
 
     @Transactional

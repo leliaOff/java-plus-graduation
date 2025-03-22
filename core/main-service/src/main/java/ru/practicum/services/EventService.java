@@ -1,5 +1,6 @@
 package ru.practicum.services;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -7,8 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.UserDto;
 import ru.practicum.dto.event.*;
-import ru.practicum.dto.user.UserDto;
 import ru.practicum.enums.EventSort;
 import ru.practicum.enums.EventState;
 import ru.practicum.exceptions.BadRequestException;
@@ -16,74 +17,64 @@ import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.InvalidDataException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
-import ru.practicum.mappers.UserMapper;
 import ru.practicum.models.Category;
 import ru.practicum.models.Event;
 import ru.practicum.repositories.CategoryRepository;
 import ru.practicum.repositories.EventRepository;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.repositories.EventRepository.EventSpecification.*;
 
-@Service
-@Transactional(readOnly = true)
 @Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
-    private final UserService userService;
     private final StatEventService statEventService;
-
-    public EventService(CategoryRepository categoryRepository,
-                        EventRepository eventRepository,
-                        UserService userService,
-                        StatEventService statEventService
-    ) {
-        this.categoryRepository = categoryRepository;
-        this.eventRepository = eventRepository;
-        this.userService = userService;
-        this.statEventService = statEventService;
-    }
+    private final UserEventService userEventService;
 
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        UserDto userDto = userService.getUser(userId);
-        Event event = EventMapper.toModel(newEventDto, UserMapper.toModel(userDto));
+        UserDto userDto = userEventService.getUser(userId);
+        Event event = EventMapper.toModel(newEventDto, userDto.id());
         Event savedEvent = eventRepository.save(event);
         log.info("Added event: {}", savedEvent);
-        return EventMapper.toDto(savedEvent, 0L);
+        return EventMapper.toDto(savedEvent, userDto, 0L);
     }
 
     public List<EventShortDto> getPrivateEvents(Long userId, PageRequest request) {
+        UserDto userDto = userEventService.getUser(userId);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, request);
-        return events.stream().map(event -> EventMapper.toShortDto(event, statEventService.getViews(event))).toList();
+        return events.stream().map(event -> EventMapper.toShortDto(event, userDto, statEventService.getViews(event))).toList();
     }
 
     public EventFullDto getPrivateEvent(Long userId, Long eventId) {
+        UserDto userDto = userEventService.getUser(userId);
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-        return EventMapper.toDto(event, statEventService.getViews(event));
+        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
     }
 
     public EventFullDto updatePrivateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventRequest) {
+        UserDto userDto = userEventService.getUser(userId);
         Event oldEvent = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         if (!oldEvent.getState().equals(EventState.CANCELED) && !oldEvent.getState().equals(EventState.PENDING)) {
             throw new ConflictException("Event with id=" + eventId + " cannot be updated");
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateEventRequest);
-        return EventMapper.toDto(eventRepository.save(updatedEvent), statEventService.getViews(oldEvent));
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, statEventService.getViews(oldEvent));
     }
 
     public EventFullDto find(Long eventId) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Published event with id=" + eventId + " was not found"));
-        return EventMapper.toDto(event, statEventService.getViews(event));
+        UserDto userDto = userEventService.getUser(event.getInitiatorId());
+        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
     }
 
     public Collection<EventShortDto> getEvents(EventFilterDto filter, EventSort sort, Integer from, Integer size) {
@@ -101,9 +92,12 @@ public class EventService {
         Collection<Event> events = eventRepository.findAll(specification,
                 PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "eventDate"))
         ).toList();
+
         HashMap<Long, Long> views = statEventService.getViews(events);
+        Map<Long, UserDto> users = userEventService.getUsersByEvents(events);
+
         Collection<EventShortDto> eventShortDtoCollection = events.stream()
-                .map(event -> EventMapper.toShortDto(event, views.get(event.getId())))
+                .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), views.get(event.getId())))
                 .toList();
         if (sort.equals(EventSort.VIEWS)) {
             return eventShortDtoCollection.stream().sorted(Comparator.comparing(EventShortDto::getViews)).toList();
@@ -127,9 +121,10 @@ public class EventService {
         );
         log.info("Events found: {}", events.size());
 
+        Map<Long, UserDto> users = userEventService.getUsersByEvents(events);
 
         return events.stream()
-                .map(EventMapper::toDtoWithoutViews)
+                .map(event -> EventMapper.toDtoWithoutViews(event, users.get(event.getInitiatorId())))
                 .collect(Collectors.toList());
     }
 
@@ -144,8 +139,8 @@ public class EventService {
             throw new InvalidDataException("Event with id=" + eventId + " is CANCELED");
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateAdminRequest);
-
-        return EventMapper.toDto(eventRepository.save(updatedEvent), 0L);
+        UserDto userDto = userEventService.getUser(updatedEvent.getInitiatorId());
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, 0L);
     }
 
 }

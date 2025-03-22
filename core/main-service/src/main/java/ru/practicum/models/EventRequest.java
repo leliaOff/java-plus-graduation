@@ -23,8 +23,7 @@ public class EventRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User requester;
+    private Long requesterId;
 
     @Column(nullable = false)
     private LocalDateTime created;
