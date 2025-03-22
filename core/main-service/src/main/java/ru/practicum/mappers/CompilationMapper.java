@@ -36,7 +36,7 @@ public class CompilationMapper {
         Compilation model = new Compilation();
         model.setTitle(dto.getTitle());
         model.setPinned(dto.getPinned() != null ? dto.getPinned() : false);
-        if (!events.isEmpty()) {
+        if (events != null && !events.isEmpty()) {
             model.setEvents(events);
         }
         return model;

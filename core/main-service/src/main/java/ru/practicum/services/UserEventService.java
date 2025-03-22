@@ -8,9 +8,7 @@ import ru.practicum.dto.UserDto;
 import ru.practicum.models.Event;
 import ru.practicum.models.EventComment;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,6 +23,9 @@ public class UserEventService {
     }
 
     public Map<Long, UserDto> getUsersByEvents(Collection<Event> events) {
+        if (events == null || events.isEmpty()) {
+            return new HashMap<>();
+        }
         Set<Long> eventsInitiatorList = events
                 .stream()
                 .map(Event::getInitiatorId)

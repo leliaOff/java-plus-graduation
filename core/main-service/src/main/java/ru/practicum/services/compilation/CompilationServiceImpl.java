@@ -41,9 +41,6 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Collection<Event> events = eventRepository.findByIdIn(newCompilationDto.getEvents());
-        if (newCompilationDto.getEvents() != null && newCompilationDto.getEvents().size() != events.size()) {
-            throw new InvalidDataException("One or more events not found");
-        }
         Compilation compilation = CompilationMapper.toModel(newCompilationDto, events);
         compilation = compilationRepository.save(compilation);
         log.info("Compilation saved: {}", compilation);
