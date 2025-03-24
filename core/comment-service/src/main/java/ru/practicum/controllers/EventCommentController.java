@@ -3,7 +3,7 @@ package ru.practicum.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.eventComment.EventCommentDto;
+import ru.practicum.dto.EventCommentDto;
 import ru.practicum.services.EventCommentService;
 
 import java.util.List;

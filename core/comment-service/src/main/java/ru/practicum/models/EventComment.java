@@ -20,8 +20,7 @@ public class EventComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Event event;
+    private Long eventId;
 
     private Long authorId;
 

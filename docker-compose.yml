@@ -165,7 +165,7 @@ services:
 
   request-service:
     build: core/request-service
-    container_name: urequest-service
+    container_name: request-service
     depends_on:
       request-db:
         condition: service_healthy
@@ -202,17 +202,44 @@ services:
       interval: 10s
       retries: 15
 
-#  dev-request-db:
-#    image: postgres:16.1
-#    container_name: dev-postgres-ewm-request-db
-#    ports:
-#      - "7434:5432"
-#    networks:
-#      - ewm-net
-#    environment:
-#      - POSTGRES_PASSWORD=postgres
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_DB=ewm-request
+  comment-service:
+    build: core/comment-service
+    container_name: comment-service
+    depends_on:
+      comment-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://comment-db:5432/ewm-comment
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8081
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  comment-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-comment-db
+    networks:
+      - ewm-net
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-comment
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
 
 networks:
   ewm-net:

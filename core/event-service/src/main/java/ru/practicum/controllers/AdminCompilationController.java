@@ -1,4 +1,4 @@
-package ru.practicum.controllers.admin;
+package ru.practicum.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import ru.practicum.services.compilation.CompilationService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/compilations")
-public class CompilationAdminController {
+public class AdminCompilationController {
     private final CompilationService compilationService;
 
     @PostMapping

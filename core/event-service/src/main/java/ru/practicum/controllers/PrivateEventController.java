@@ -1,4 +1,4 @@
-package ru.practicum.controllers.auth;
+package ru.practicum.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/users/{userId}/events")
-public class EventPrivateController {
+public class PrivateEventController {
 
     private final EventService eventService;
 

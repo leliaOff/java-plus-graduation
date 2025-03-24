@@ -1,4 +1,4 @@
-package ru.practicum.controllers.admin;
+package ru.practicum.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import ru.practicum.services.category.CategoryService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/categories")
-public class CategoryAdminController {
+public class AdminCategoryController {
     private final CategoryService categoryService;
 
     @PostMapping

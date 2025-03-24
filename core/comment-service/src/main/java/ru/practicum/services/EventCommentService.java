@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.UserDto;
-import ru.practicum.dto.eventComment.*;
+import ru.practicum.clients.EventClient;
+import ru.practicum.dto.*;
 import ru.practicum.enums.EventCommentStatus;
 import ru.practicum.enums.EventState;
 import ru.practicum.exceptions.BadRequestException;
@@ -15,10 +15,8 @@ import ru.practicum.exceptions.InvalidDataException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.helpers.PaginateHelper;
 import ru.practicum.mappers.EventCommentMapper;
-import ru.practicum.models.Event;
 import ru.practicum.models.EventComment;
 import ru.practicum.repositories.EventCommentRepository;
-import ru.practicum.repositories.EventRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -29,9 +27,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class EventCommentService {
-    private final EventRepository eventRepository;
+    private final EventClient eventClient;
     private final EventCommentRepository eventCommentRepository;
-    private final UserEventService userEventService;
+    private final UserEventCommentService userEventCommentService;
 
     public List<EventCommentPrivateDto> getComments(Long userId, Long eventId, Integer size, Integer from) {
         if (eventId != null) {
@@ -66,7 +64,7 @@ public class EventCommentService {
         List<EventComment> eventCommentList = eventCommentRepository.findAllByEventIdAndStatus(eventId, EventCommentStatus.PUBLISHED,
                 PaginateHelper.getPageRequest(from, size, Sort.by(Sort.Direction.ASC, "created"))
         );
-        Map<Long, UserDto> users = userEventService.getUsersByComments(eventCommentList);
+        Map<Long, UserDto> users = userEventCommentService.getUsersByComments(eventCommentList);
         return eventCommentRepository.findAllByEventIdAndStatus(eventId, EventCommentStatus.PUBLISHED,
                         PaginateHelper.getPageRequest(from, size, Sort.by(Sort.Direction.ASC, "created"))
                 ).stream()
@@ -81,12 +79,12 @@ public class EventCommentService {
 
     @Transactional
     public EventCommentPrivateDto create(Long userId, CreateCommentRequest request) {
-        UserDto author = userEventService.getUser(userId);
-        Event event = eventRepository.findById(request.getEventId()).orElseThrow(() -> new NotFoundException("Event not found"));
+        UserDto author = userEventCommentService.getUser(userId);
+        EventDto event = eventClient.getEvent(request.getEventId());
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new InvalidDataException("Event not published");
         }
-        EventComment comment = eventCommentRepository.save(EventCommentMapper.toModel(request, author.id(), event));
+        EventComment comment = eventCommentRepository.save(EventCommentMapper.toModel(request, author.id(), event.getId()));
         return EventCommentMapper.toPrivateDto(comment);
     }
 
