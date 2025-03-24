@@ -39,9 +39,9 @@ public class UserMapper {
 
     public User toModel(UserDto dto) {
         User user = new User();
-        user.setId(dto.getId());
-        user.setEmail(dto.getEmail());
-        user.setName(dto.getName());
+        user.setId(dto.id());
+        user.setEmail(dto.email());
+        user.setName(dto.name());
         return user;
     }
 }
