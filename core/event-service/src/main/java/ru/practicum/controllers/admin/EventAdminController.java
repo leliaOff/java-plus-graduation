@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventAdminFilterDto;
 import ru.practicum.dto.EventDto;
+import ru.practicum.dto.event.EventAdminFilterDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.services.EventService;
 
@@ -23,12 +23,12 @@ public class EventAdminController {
 
     @GetMapping
     public List<EventDto> getEventsForAdmin(@RequestParam(required = false) List<Long> users,
-                                                @RequestParam(required = false) List<String> states,
-                                                @RequestParam(required = false) List<Long> categories,
-                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                                @RequestParam(defaultValue = "0") int from,
-                                                @RequestParam(defaultValue = "10") int size) {
+                                            @RequestParam(required = false) List<String> states,
+                                            @RequestParam(required = false) List<Long> categories,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                            @RequestParam(defaultValue = "0") int from,
+                                            @RequestParam(defaultValue = "10") int size) {
         EventAdminFilterDto filterDto = new EventAdminFilterDto(
                 users,
                 states,
@@ -46,7 +46,7 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     public EventDto updateEventForAdmin(@PathVariable("eventId") Long eventId,
-                                            @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
+                                        @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
         log.info("Updating event with id={} for admin", eventId);
         return eventService.updateAdminEvent(eventId, updateEventAdminRequest);
     }

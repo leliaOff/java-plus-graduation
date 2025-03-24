@@ -1,7 +1,9 @@
 package ru.practicum.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.enums.EventRequestStatus;
 
 import java.time.LocalDateTime;

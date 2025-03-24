@@ -1,10 +1,13 @@
 package ru.practicum.mappers;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.dto.UserDto;
 import ru.practicum.dto.EventDto;
-import ru.practicum.dto.event.*;
 import ru.practicum.dto.Location;
+import ru.practicum.dto.UserDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.NewEventDto;
+import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.dto.event.UpdateEventUserRequest;
 import ru.practicum.enums.EventAdminStateAction;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.EventUserStateAction;
