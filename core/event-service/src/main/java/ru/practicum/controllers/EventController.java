@@ -44,7 +44,7 @@ public class EventController {
 
     @GetMapping("/{id}")
     public EventDto find(@PathVariable Long id, HttpServletRequest request) {
-        EventDto event = eventService.find(id);
+        EventDto event = eventService.findPublished(id);
         statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         return event;
     }

@@ -81,6 +81,13 @@ public class EventService {
     }
 
     public EventDto find(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+        UserDto userDto = userEventService.getUser(event.getInitiatorId());
+        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
+    }
+
+    public EventDto findPublished(Long eventId) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Published event with id=" + eventId + " was not found"));
         UserDto userDto = userEventService.getUser(event.getInitiatorId());
