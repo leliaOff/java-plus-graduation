@@ -1,5 +1,6 @@
 package ru.practicum.services;
 
+import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
@@ -39,27 +40,31 @@ public class RequestService {
     @Transactional
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
         UserDto user = userClient.getUser(userId);
-        EventDto event = eventClient.getEvent(eventId);
-        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId))
-            throw new InvalidDataException("Request already exist");
-        if (event.getInitiator().getId().equals(userId)) {
-            throw new InvalidDataException("Request can't be created by initiator");
+        try {
+            EventDto event = eventClient.getEvent(eventId);
+            if (requestRepository.existsByRequesterIdAndEventId(userId, eventId))
+                throw new InvalidDataException("Request already exist");
+            if (event.getInitiator().getId().equals(userId)) {
+                throw new InvalidDataException("Request can't be created by initiator");
+            }
+            if (event.getPublishedOn() == null) {
+                throw new InvalidDataException("Event not yet published");
+            }
+            int requestsSize = requestRepository.findAllByEventId(eventId).size();
+            if (event.getParticipantLimit() > 0 && !event.getRequestModeration() && event.getParticipantLimit() <= requestsSize) {
+                throw new InvalidDataException("Participant limit exceeded");
+            }
+            EventRequest eventRequest = new EventRequest(null, event.getId(), user.id(), LocalDateTime.now(), EventRequestStatus.PENDING);
+            if (!event.getRequestModeration()) {
+                eventRequest.setStatus(EventRequestStatus.CONFIRMED);
+            }
+            if (event.getParticipantLimit() != null && event.getParticipantLimit() == 0) {
+                eventRequest.setStatus(EventRequestStatus.CONFIRMED);
+            }
+            return EventRequestMapper.toDto(requestRepository.save(eventRequest));
+        } catch (FeignException exception) {
+            throw new ConflictException("Event not found or not published");
         }
-        if (event.getPublishedOn() == null) {
-            throw new InvalidDataException("Event not yet published");
-        }
-        int requestsSize = requestRepository.findAllByEventId(eventId).size();
-        if (event.getParticipantLimit() > 0 && !event.getRequestModeration() && event.getParticipantLimit() <= requestsSize) {
-            throw new InvalidDataException("Participant limit exceeded");
-        }
-        EventRequest eventRequest = new EventRequest(null, event.getId(), user.id(), LocalDateTime.now(), EventRequestStatus.PENDING);
-        if (!event.getRequestModeration()) {
-            eventRequest.setStatus(EventRequestStatus.CONFIRMED);
-        }
-        if (event.getParticipantLimit() != null && event.getParticipantLimit() == 0) {
-            eventRequest.setStatus(EventRequestStatus.CONFIRMED);
-        }
-        return EventRequestMapper.toDto(requestRepository.save(eventRequest));
     }
 
     @Transactional
