@@ -86,8 +86,8 @@ services:
       retries: 15
 
   ewm-service:
-    build: core/main-service
-    container_name: ewm-main-service
+    build: core/event-service
+    container_name: ewm-event-service
     depends_on:
       ewm-db:
         condition: service_healthy
@@ -163,41 +163,56 @@ services:
       interval: 10s
       retries: 15
 
-#  dev-stats-db:
+  request-service:
+    build: core/request-service
+    container_name: urequest-service
+    depends_on:
+      request-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://request-db:5432/ewm-request
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8081
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  request-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-request-db
+    networks:
+      - ewm-net
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-request
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
+
+#  dev-request-db:
 #    image: postgres:16.1
-#    container_name: dev-postgres-ewm-stats-db
+#    container_name: dev-postgres-ewm-request-db
 #    ports:
-#      - "6432:5432"
+#      - "7434:5432"
+#    networks:
+#      - ewm-net
 #    environment:
 #      - POSTGRES_PASSWORD=postgres
 #      - POSTGRES_USER=postgres
-#      - POSTGRES_DB=ewm-stats
-#    networks:
-#      - ewm-net
-#
-#  dev-ewm-db:
-#    image: postgres:16.1
-#    container_name: dev-postgres-ewm-main-db
-#    ports:
-#      - "7432:5432"
-#    networks:
-#      - ewm-net
-#    environment:
-#      - POSTGRES_PASSWORD=postgres
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_DB=ewm-main
-#
-#  dev-user-db:
-#    image: postgres:16.1
-#    container_name: dev-postgres-ewm-user-db
-#    ports:
-#      - "7433:5432"
-#    networks:
-#      - ewm-net
-#    environment:
-#      - POSTGRES_PASSWORD=postgres
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_DB=ewm-user
+#      - POSTGRES_DB=ewm-request
 
 networks:
   ewm-net:
