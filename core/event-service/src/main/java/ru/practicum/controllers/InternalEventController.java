@@ -18,7 +18,7 @@ public class InternalEventController {
         return eventService.find(id);
     }
 
-    @PatchMapping
+    @PostMapping
     void setConfirmed(@PathVariable Long id, @Valid @RequestBody SetEventConfirmedRequest request) {
         eventService.setConfirmed(id, request.getConfirmedRequests());
     }
