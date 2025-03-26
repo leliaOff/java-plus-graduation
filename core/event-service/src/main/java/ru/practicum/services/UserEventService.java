@@ -2,7 +2,6 @@ package ru.practicum.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.clients.UserClient;
 import ru.practicum.dto.UserDto;
 import ru.practicum.models.Event;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-@Transactional(readOnly = true)
 public class UserEventService {
     private final UserClient client;
 
