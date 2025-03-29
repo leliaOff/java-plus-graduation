@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+  datasource:
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:7434/ewm-request
+    driver-class-name: org.postgresql.Driver
