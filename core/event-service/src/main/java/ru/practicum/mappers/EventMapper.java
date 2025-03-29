@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @UtilityClass
 public class EventMapper {
-    public EventShortDto toShortDto(Event model, UserDto user) {
+    public EventShortDto toShortDto(Event model, UserDto user, Double rating) {
         return new EventShortDto(
                 model.getId(),
                 model.getTitle(),
@@ -29,12 +29,12 @@ public class EventMapper {
                 model.getEventDate(),
                 UserDtoMapper.toShortDto(user),
                 model.getPaid(),
-                0.0
+                rating
         );
     }
 
 
-    public EventDto toDto(Event model, UserDto user) {
+    public EventDto toDto(Event model, UserDto user, Double rating) {
         return new EventDto(
                 model.getId(),
                 model.getTitle(),
@@ -51,7 +51,7 @@ public class EventMapper {
                 model.getPublishedOn(),
                 model.getRequestModeration(),
                 model.getState(),
-                0.0
+                rating
         );
     }
 
@@ -73,7 +73,7 @@ public class EventMapper {
         return model;
     }
 
-    public EventDto toDtoWithoutViews(Event model, UserDto user) {
+    public EventDto toDtoWithoutRatings(Event model, UserDto user) {
         return new EventDto(
                 model.getId(),
                 model.getTitle(),

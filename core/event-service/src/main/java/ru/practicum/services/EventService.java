@@ -38,6 +38,7 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
     private final UserEventService userEventService;
+    private final EventAnalyzerService eventAnalyzerService;
 
     @Transactional
     public EventDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -45,20 +46,21 @@ public class EventService {
         Event event = EventMapper.toModel(newEventDto, userDto.id());
         Event savedEvent = eventRepository.save(event);
         log.info("Added event: {}", savedEvent);
-        return EventMapper.toDto(savedEvent, userDto);
+        return EventMapper.toDto(savedEvent, userDto, eventAnalyzerService.getRating(event));
     }
 
     public List<EventShortDto> getPrivateEvents(Long userId, PageRequest request) {
         UserDto userDto = userEventService.getUser(userId);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, request);
-        return events.stream().map(event -> EventMapper.toShortDto(event, userDto)).toList();
+        Map<Long, Double> ratings = eventAnalyzerService.getRating(events);
+        return events.stream().map(event -> EventMapper.toShortDto(event, userDto, ratings.get(event.getId()))).toList();
     }
 
     public EventDto getPrivateEvent(Long userId, Long eventId) {
         UserDto userDto = userEventService.getUser(userId);
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-        return EventMapper.toDto(event, userDto);
+        return EventMapper.toDto(event, userDto, eventAnalyzerService.getRating(event));
     }
 
     @Transactional
@@ -70,7 +72,7 @@ public class EventService {
             throw new ConflictException("Event with id=" + eventId + " cannot be updated");
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateEventRequest);
-        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto);
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, eventAnalyzerService.getRating(updatedEvent));
     }
 
     @Transactional
@@ -85,14 +87,14 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         UserDto userDto = userEventService.getUser(event.getInitiatorId());
-        return EventMapper.toDto(event, userDto);
+        return EventMapper.toDto(event, userDto, eventAnalyzerService.getRating(event));
     }
 
     public EventDto findPublished(Long eventId) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Published event with id=" + eventId + " was not found"));
         UserDto userDto = userEventService.getUser(event.getInitiatorId());
-        return EventMapper.toDto(event, userDto);
+        return EventMapper.toDto(event, userDto, eventAnalyzerService.getRating(event));
     }
 
     public Collection<EventShortDto> getEvents(EventFilterDto filter, EventSort sort, Integer from, Integer size) {
@@ -112,12 +114,15 @@ public class EventService {
         ).toList();
 
         Map<Long, UserDto> users = userEventService.getUsersByEvents(events);
+        Map<Long, Double> ratings = eventAnalyzerService.getRating(events);
 
-        Collection<EventShortDto> eventShortDtoCollection = events.stream()
-                .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId())))
+        return events.stream()
+                .map(event -> EventMapper.toShortDto(
+                        event,
+                        users.get(event.getInitiatorId()),
+                        ratings.get(event.getId()))
+                )
                 .toList();
-
-        return eventShortDtoCollection;
     }
 
 
@@ -139,7 +144,7 @@ public class EventService {
         Map<Long, UserDto> users = userEventService.getUsersByEvents(events);
 
         return events.stream()
-                .map(event -> EventMapper.toDtoWithoutViews(event, users.get(event.getInitiatorId())))
+                .map(event -> EventMapper.toDtoWithoutRatings(event, users.get(event.getInitiatorId())))
                 .collect(Collectors.toList());
     }
 
@@ -155,7 +160,6 @@ public class EventService {
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateAdminRequest);
         UserDto userDto = userEventService.getUser(updatedEvent.getInitiatorId());
-        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto);
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, eventAnalyzerService.getRating(updatedEvent));
     }
-
 }

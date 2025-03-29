@@ -11,16 +11,17 @@ import ru.practicum.models.Event;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class CompilationMapper {
-    public static CompilationDto toDto(Compilation model, Map<Long, UserDto> users) {
+    public static CompilationDto toDto(Compilation model, Map<Long, UserDto> users, HashMap<Long, Double> ratings) {
         Collection<EventShortDto> events = new ArrayList<>();
         if (model.getEvents() != null) {
             events = model.getEvents().stream()
-                    .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId())))
+                    .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), ratings.get(event.getId())))
                     .collect(Collectors.toList());
         }
         return new CompilationDto(

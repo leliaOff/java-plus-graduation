@@ -14,6 +14,7 @@ import ru.practicum.models.Compilation;
 import ru.practicum.models.Event;
 import ru.practicum.repositories.CompilationRepository;
 import ru.practicum.repositories.EventRepository;
+import ru.practicum.services.EventAnalyzerService;
 import ru.practicum.services.UserEventService;
 
 import java.util.Collection;
@@ -27,6 +28,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final UserEventService userEventService;
+    private final EventAnalyzerService eventAnalyzerService;
 
     public CompilationDto find(Long compilationId) {
         Optional<Compilation> optional = compilationRepository.findById(compilationId);
@@ -78,6 +80,6 @@ public class CompilationServiceImpl implements CompilationService {
 
     private CompilationDto getCompilation(Compilation compilation) {
         Collection<Event> events = compilation.getEvents();
-        return CompilationMapper.toDto(compilation, userEventService.getUsersByEvents(events));
+        return CompilationMapper.toDto(compilation, userEventService.getUsersByEvents(events), eventAnalyzerService.getRating(events));
     }
 }

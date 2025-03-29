@@ -4,10 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.CollectorClient;
 import ru.practicum.dto.EventDto;
 import ru.practicum.dto.event.EventFilterDto;
+import ru.practicum.dto.event.EventRecommendationDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.enums.EventSort;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.services.EventAnalyzerService;
 import ru.practicum.services.EventService;
 
 import java.time.LocalDateTime;
@@ -19,6 +23,8 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventController {
     private final EventService eventService;
+    private final EventAnalyzerService eventAnalyzerService;
+    private final CollectorClient collectorClient;
 
     @GetMapping
     public Collection<EventShortDto> getEvents(@RequestParam(required = false) String text,
@@ -31,17 +37,31 @@ public class EventController {
                                                @RequestParam(defaultValue = "0") Integer from,
                                                @RequestParam(defaultValue = "10") Integer size,
                                                HttpServletRequest request) {
-        Collection<EventShortDto> events = eventService.getEvents(new EventFilterDto(text, categories, paid, rangeStart, rangeEnd, onlyAvailable),
+        return eventService.getEvents(new EventFilterDto(text, categories, paid, rangeStart, rangeEnd, onlyAvailable),
                 sort,
                 from,
                 size
         );
-        return events;
     }
 
     @GetMapping("/{id}")
-    public EventDto find(@PathVariable Long id, HttpServletRequest request) {
+    public EventDto find(@PathVariable Long id, @RequestHeader("X-EWM-USER-ID") Long userId) {
         EventDto event = eventService.findPublished(id);
+        collectorClient.sendUserAction(userId, event.getId(), ActionTypeProto.ACTION_VIEW);
         return event;
+    }
+
+    @GetMapping("/recommendations")
+    public List<EventRecommendationDto> recommendations(@RequestHeader("X-EWM-USER-ID") Long userId,
+                                                        @RequestParam(defaultValue = "10") Integer limit
+    ) {
+        return eventAnalyzerService.recommendations(userId, limit);
+    }
+
+    @PutMapping("/{id}/like")
+    public void like(@PathVariable Long id,
+                     @RequestHeader("X-EWM-USER-ID") Long userId
+    ) {
+        collectorClient.sendUserAction(userId, id, ActionTypeProto.ACTION_LIKE);
     }
 }
