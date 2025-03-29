@@ -16,7 +16,11 @@ public class EventSimilarity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, name = "event_a")
     private Long eventA;
+
+    @Column(nullable = false, name = "event_b")
     private Long eventB;
     private Float score;
     private Instant timestamp;

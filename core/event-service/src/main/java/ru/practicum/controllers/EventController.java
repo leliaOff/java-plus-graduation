@@ -9,7 +9,6 @@ import ru.practicum.dto.event.EventFilterDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.enums.EventSort;
 import ru.practicum.services.EventService;
-import ru.practicum.services.StatEventService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventController {
     private final EventService eventService;
-    private final StatEventService statEventService;
 
     @GetMapping
     public Collection<EventShortDto> getEvents(@RequestParam(required = false) String text,
@@ -38,14 +36,12 @@ public class EventController {
                 from,
                 size
         );
-        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         return events;
     }
 
     @GetMapping("/{id}")
     public EventDto find(@PathVariable Long id, HttpServletRequest request) {
         EventDto event = eventService.findPublished(id);
-        statEventService.hit(request.getRequestURI(), request.getRemoteAddr());
         return event;
     }
 }

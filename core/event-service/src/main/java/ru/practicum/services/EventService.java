@@ -23,7 +23,9 @@ import ru.practicum.models.Event;
 import ru.practicum.repositories.CategoryRepository;
 import ru.practicum.repositories.EventRepository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.repositories.EventRepository.EventSpecification.*;
@@ -35,7 +37,6 @@ import static ru.practicum.repositories.EventRepository.EventSpecification.*;
 public class EventService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
-    private final StatEventService statEventService;
     private final UserEventService userEventService;
 
     @Transactional
@@ -44,20 +45,20 @@ public class EventService {
         Event event = EventMapper.toModel(newEventDto, userDto.id());
         Event savedEvent = eventRepository.save(event);
         log.info("Added event: {}", savedEvent);
-        return EventMapper.toDto(savedEvent, userDto, 0L);
+        return EventMapper.toDto(savedEvent, userDto);
     }
 
     public List<EventShortDto> getPrivateEvents(Long userId, PageRequest request) {
         UserDto userDto = userEventService.getUser(userId);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, request);
-        return events.stream().map(event -> EventMapper.toShortDto(event, userDto, statEventService.getViews(event))).toList();
+        return events.stream().map(event -> EventMapper.toShortDto(event, userDto)).toList();
     }
 
     public EventDto getPrivateEvent(Long userId, Long eventId) {
         UserDto userDto = userEventService.getUser(userId);
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
-        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
+        return EventMapper.toDto(event, userDto);
     }
 
     @Transactional
@@ -69,7 +70,7 @@ public class EventService {
             throw new ConflictException("Event with id=" + eventId + " cannot be updated");
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateEventRequest);
-        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, statEventService.getViews(oldEvent));
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto);
     }
 
     @Transactional
@@ -84,14 +85,14 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         UserDto userDto = userEventService.getUser(event.getInitiatorId());
-        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
+        return EventMapper.toDto(event, userDto);
     }
 
     public EventDto findPublished(Long eventId) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Published event with id=" + eventId + " was not found"));
         UserDto userDto = userEventService.getUser(event.getInitiatorId());
-        return EventMapper.toDto(event, userDto, statEventService.getViews(event));
+        return EventMapper.toDto(event, userDto);
     }
 
     public Collection<EventShortDto> getEvents(EventFilterDto filter, EventSort sort, Integer from, Integer size) {
@@ -110,15 +111,12 @@ public class EventService {
                 PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "eventDate"))
         ).toList();
 
-        HashMap<Long, Long> views = statEventService.getViews(events);
         Map<Long, UserDto> users = userEventService.getUsersByEvents(events);
 
         Collection<EventShortDto> eventShortDtoCollection = events.stream()
-                .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), views.get(event.getId())))
+                .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId())))
                 .toList();
-        if (sort.equals(EventSort.VIEWS)) {
-            return eventShortDtoCollection.stream().sorted(Comparator.comparing(EventShortDto::getViews)).toList();
-        }
+
         return eventShortDtoCollection;
     }
 
@@ -157,7 +155,7 @@ public class EventService {
         }
         Event updatedEvent = EventMapper.mergeModel(oldEvent, updateAdminRequest);
         UserDto userDto = userEventService.getUser(updatedEvent.getInitiatorId());
-        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto, 0L);
+        return EventMapper.toDto(eventRepository.save(updatedEvent), userDto);
     }
 
 }

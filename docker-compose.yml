@@ -91,8 +91,6 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
-      stats-server:
-        condition: service_healthy
     networks:
       - ewm-net
     environment:
@@ -130,8 +128,6 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
-      stats-server:
-        condition: service_healthy
     networks:
       - ewm-net
     environment:
@@ -168,8 +164,6 @@ services:
       comment-db:
         condition: service_healthy
       config-server:
-        condition: service_healthy
-      stats-server:
         condition: service_healthy
     networks:
       - ewm-net
@@ -306,6 +300,18 @@ services:
       timeout: 5s
       interval: 10s
       retries: 15
+
+#  dev-analyzer-db:
+#    image: postgres:16.1
+#    container_name: dev-postgres-ewm-analyzer-db
+#    ports:
+#      - "7436:5432"
+#    environment:
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_DB=ewm-analyzer
+#    networks:
+#      - ewm-net
 
 networks:
   ewm-net:

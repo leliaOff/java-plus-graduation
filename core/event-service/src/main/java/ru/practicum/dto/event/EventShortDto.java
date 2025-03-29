@@ -24,5 +24,5 @@ public class EventShortDto {
     private LocalDateTime eventDate;
     private UserShortDto initiator;
     private Boolean paid;
-    private Long views;
+    private Double rating;
 }

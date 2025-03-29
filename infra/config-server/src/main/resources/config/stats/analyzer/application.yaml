@@ -1,9 +1,9 @@
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://analyzer-db:5432/ewm-analyzer
-    username: root
-    password: root
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:7436/ewm-analyzer
   jpa:
     hibernate:
       ddl-auto: update
