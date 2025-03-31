@@ -2,9 +2,10 @@ package ru.practicum.services;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MinWeightsMatrix {
-    private final Map<Long, Map<Long, Double>> minWeightsSum = new HashMap<>();
+    private final Map<Long, Map<Long, Double>> minWeightsSum = new ConcurrentHashMap<>();
 
     public void put(long eventA, long eventB, double sum) {
         long first = Math.min(eventA, eventB);

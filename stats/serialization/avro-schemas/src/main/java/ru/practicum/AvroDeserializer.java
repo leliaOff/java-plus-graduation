@@ -1,5 +1,6 @@
 package ru.practicum;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
@@ -9,6 +10,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
 
+@Slf4j
 public class AvroDeserializer<T extends SpecificRecordBase> implements Deserializer<T> {
     private final Class<T> targetType;
 
@@ -32,6 +34,7 @@ public class AvroDeserializer<T extends SpecificRecordBase> implements Deseriali
         if (targetType == null) {
             throw new IllegalStateException("TargetType is empty");
         }
+        log.info("Avro deserialization, TargetType: {}", targetType);
         try {
             SpecificDatumReader<T> datumReader = new SpecificDatumReader<>(targetType);
             BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(new ByteArrayInputStream(data), null);

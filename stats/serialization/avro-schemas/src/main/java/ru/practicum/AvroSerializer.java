@@ -1,5 +1,6 @@
 package ru.practicum;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
@@ -12,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 public class AvroSerializer<T extends SpecificRecordBase> implements Serializer<T> {
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -19,6 +21,7 @@ public class AvroSerializer<T extends SpecificRecordBase> implements Serializer<
 
     @Override
     public byte[] serialize(String topic, T data) {
+        log.info("Avro serialization, data: {}", data);
         if (data == null) {
             return null;
         }

@@ -3,6 +3,7 @@ package ru.practicum.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.models.UserAction;
@@ -16,6 +17,7 @@ import java.time.Instant;
 public class UserActionService {
     private final UserActionRepository userActionRepository;
 
+    @Transactional
     public void updateUserAction(UserActionAvro userActionAvro) {
         long userId = userActionAvro.getUserId();
         long eventId = userActionAvro.getEventId();
