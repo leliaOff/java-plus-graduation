@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class CompilationMapper {
-    public static CompilationDto toDto(Compilation model, Map<Long, UserDto> users, HashMap<Long, Long> views) {
+    public static CompilationDto toDto(Compilation model, Map<Long, UserDto> users, HashMap<Long, Double> ratings) {
         Collection<EventShortDto> events = new ArrayList<>();
         if (model.getEvents() != null) {
             events = model.getEvents().stream()
-                    .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), views.get(event.getId())))
+                    .map(event -> EventMapper.toShortDto(event, users.get(event.getInitiatorId()), ratings.get(event.getId())))
                     .collect(Collectors.toList());
         }
         return new CompilationDto(

@@ -14,7 +14,7 @@ import ru.practicum.models.Compilation;
 import ru.practicum.models.Event;
 import ru.practicum.repositories.CompilationRepository;
 import ru.practicum.repositories.EventRepository;
-import ru.practicum.services.StatEventService;
+import ru.practicum.services.EventAnalyzerService;
 import ru.practicum.services.UserEventService;
 
 import java.util.Collection;
@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final StatEventService statEventService;
     private final UserEventService userEventService;
+    private final EventAnalyzerService eventAnalyzerService;
 
     public CompilationDto find(Long compilationId) {
         Optional<Compilation> optional = compilationRepository.findById(compilationId);
         if (optional.isEmpty()) {
             throw new NotFoundException("Compilation not found");
         }
-        return getCompilationWithEventViews(optional.get());
+        return getCompilation(optional.get());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
         compilation = compilationRepository.save(compilation);
         log.info("Compilation updated, ID : {}", compilationId);
-        return getCompilationWithEventViews(compilation);
+        return getCompilation(compilation);
     }
 
     @Override
@@ -75,11 +75,11 @@ public class CompilationServiceImpl implements CompilationService {
         Collection<Compilation> compilations = pinned == null
                 ? compilationRepository.findAll(PageRequest.of(from / size, size)).stream().toList()
                 : compilationRepository.findByPinned(pinned, PageRequest.of(from / size, size));
-        return compilations.stream().map(this::getCompilationWithEventViews).collect(Collectors.toList());
+        return compilations.stream().map(this::getCompilation).collect(Collectors.toList());
     }
 
-    private CompilationDto getCompilationWithEventViews(Compilation compilation) {
+    private CompilationDto getCompilation(Compilation compilation) {
         Collection<Event> events = compilation.getEvents();
-        return CompilationMapper.toDto(compilation, userEventService.getUsersByEvents(events), statEventService.getViews(events));
+        return CompilationMapper.toDto(compilation, userEventService.getUsersByEvents(events), eventAnalyzerService.getRating(events));
     }
 }

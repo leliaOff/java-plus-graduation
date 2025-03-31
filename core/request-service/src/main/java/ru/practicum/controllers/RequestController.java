@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.CollectorClient;
 import ru.practicum.dto.ParticipationRequestDto;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.services.RequestService;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public class RequestController {
 
     private final RequestService requestService;
+    private final CollectorClient collectorClient;
 
     @GetMapping
     List<ParticipationRequestDto> getRequests(@PathVariable Long userId) {
@@ -25,7 +28,9 @@ public class RequestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     ParticipationRequestDto addRequest(@PathVariable Long userId, @RequestParam Long eventId) {
-        return requestService.addRequest(userId, eventId);
+        ParticipationRequestDto dto = requestService.addRequest(userId, eventId);
+        collectorClient.sendUserAction(userId, eventId, ActionTypeProto.ACTION_REGISTER);
+        return dto;
     }
 
     @PatchMapping("/{requestId}/cancel")

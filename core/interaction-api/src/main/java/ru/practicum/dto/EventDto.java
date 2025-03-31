@@ -32,5 +32,5 @@ public class EventDto {
     private LocalDateTime publishedOn;
     private Boolean requestModeration;
     private EventState state;
-    private Long views;
+    private Double rating;
 }
